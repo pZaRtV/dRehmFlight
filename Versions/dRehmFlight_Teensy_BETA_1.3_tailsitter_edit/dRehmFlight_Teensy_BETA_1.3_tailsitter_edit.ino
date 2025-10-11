@@ -24,8 +24,6 @@ Everyone that sends me pictures and videos of your flying creations! -Nick
 
 */
 
-
-
 //========================================================================================================================//
 //                                                 USER-SPECIFIED DEFINES                                                 //                                                                 
 //========================================================================================================================//
@@ -119,13 +117,11 @@ Everyone that sends me pictures and videos of your flying creations! -Nick
   #define ACCEL_SCALE_FACTOR 2048.0
 #endif
 
-
-
 //========================================================================================================================//
 //                                               USER-SPECIFIED VARIABLES                                                 //                           
 //========================================================================================================================//
 
-//Radio failsafe values for every channel in the event that bad reciever data is detected. Recommended defaults:
+// Radio failsafe values for every channel in the event that bad reciever data is detected. Recommended defaults:
 unsigned long channel_1_fs = 1000; //thro
 unsigned long channel_2_fs = 1500; //ail
 unsigned long channel_3_fs = 1500; //elev
@@ -133,13 +129,13 @@ unsigned long channel_4_fs = 1500; //rudd
 unsigned long channel_5_fs = 2000; //gear, greater than 1500 = throttle cut
 unsigned long channel_6_fs = 2000; //aux1
 
-//Filter parameters - Defaults tuned for 2kHz loop rate; Do not touch unless you know what you are doing:
+// Filter parameters - Defaults tuned for 2kHz loop rate; Do not touch unless you know what you are doing:
 float B_madgwick = 0.04;  //Madgwick filter parameter
 float B_accel = 0.14;     //Accelerometer LP filter paramter, (MPU6050 default: 0.14. MPU9250 default: 0.2)
 float B_gyro = 0.1;       //Gyro LP filter paramter, (MPU6050 default: 0.1. MPU9250 default: 0.17)
 float B_mag = 1.0;        //Magnetometer LP filter parameter
 
-//Magnetometer calibration parameters - if using MPU9250, uncomment calibrateMagnetometer() in void setup() to get these values, else just ignore these
+// Magnetometer calibration parameters - if using MPU9250, uncomment calibrateMagnetometer() in void setup() to get these values, else just ignore these
 float MagErrorX = 0.0;
 float MagErrorY = 0.0; 
 float MagErrorZ = 0.0;
@@ -147,7 +143,7 @@ float MagScaleX = 1.0;
 float MagScaleY = 1.0;
 float MagScaleZ = 1.0;
 
-//IMU calibration parameters - calibrate IMU using calculate_IMU_error() in the void setup() to get these values, then comment out calculate_IMU_error()
+// IMU calibration parameters - calibrate IMU using calculate_IMU_error() in the void setup() to get these values, then comment out calculate_IMU_error()
 float AccErrorX = 1.03;     // default: 0.02 
 float AccErrorY = -0.02;    // default: -0.01
 float AccErrorZ = -1.04;    // default: -0.08
@@ -155,7 +151,12 @@ float GyroErrorX = -3.90;   // default: 5.56
 float GyroErrorY = -2.44;   // default: 0.08
 float GyroErrorZ = 0.36;    // default: -0.51
 
-//Controller parameters (take note of defaults before modifying!): 
+// mode specific servo offsets for hover (problem was hover has tendency of having pitch up center whilst forward flight has level center, preferably a very slight pitch up while being mostly flat center yet still responsive in widerange)
+// while the forward flight has center with responsive orientational attitude while centering the hover mode resulting in reduced servo normal gain hindering control effects (experimental still)
+// float servo_left_offset_hover = 0.5;   // Center position for hover (tune this)
+// float servo_right_offset_hover = 0.5;  // Center position for hover (tune this)
+
+// Controller parameters (take note of defaults before modifying!): 
 float i_limit = 25.0;     //Integrator saturation level, mostly for safety (default 25.0)
 float maxRoll = 50.0;     //Max roll angle in degrees for angle mode (maximum ~70 degrees), deg/sec for rate mode 
 float maxPitch = 50.0;    //Max pitch angle in degrees for angle mode (maximum ~70 degrees), deg/sec for rate mode
@@ -181,8 +182,6 @@ float Kp_yaw = 0.3;           //Yaw P-gain
 float Ki_yaw = 0.05;          //Yaw I-gain
 float Kd_yaw = 0.00015;       //Yaw D-gain (be careful when increasing too high, motors will begin to overheat!)
 
-
-
 //========================================================================================================================//
 //                                                     DECLARE PINS                                                       //                           
 //========================================================================================================================//                                          
@@ -205,8 +204,8 @@ const int m4Pin = 3;
 const int m5Pin = 4;
 const int m6Pin = 5;
 //PWM servo or ESC outputs:
-const int servo1Pin = 7; // default: 6 // left tilt
-const int servo2Pin = 6; // default: 7 // right tilt
+const int servo1Pin = 6; // default: 6 // left tilt
+const int servo2Pin = 7; // default: 7 // right tilt
 const int servo3Pin = 8;
 const int servo4Pin = 9;
 const int servo5Pin = 10;
@@ -220,11 +219,7 @@ PWMServo servo5;
 PWMServo servo6;
 PWMServo servo7;
 
-
-
 //========================================================================================================================//
-
-
 
 //DECLARE GLOBAL VARIABLES
 
@@ -274,6 +269,7 @@ float error_yaw, error_yaw_prev, integral_yaw, integral_yaw_prev, derivative_yaw
 
 //Mixer
 float m1_command_scaled, m2_command_scaled, m3_command_scaled, m4_command_scaled, m5_command_scaled, m6_command_scaled;
+
 #if defined USE_ONESHOT125_ESC
 int m1_command_PWM, m2_command_PWM, m3_command_PWM, m4_command_PWM, m5_command_PWM, m6_command_PWM; // OneShot125 specific
 #else
@@ -319,8 +315,12 @@ float kp_yaw_ff = 0.2;
 float kd_yaw_ff = 0.00017;
 
 // servo trims
-float servo_right_trim = 0.55; // default: 0.55
-float servo_left_trim = 0.4;   // default: 0.4
+// ff (forward flight) center
+float servo_right_trim_ff = 0.5; // float servo_right_trim = 0.55; // default: 0.55 (default)
+float servo_left_trim_ff = 0.5; // float servo_left_trim = 0.4;   // default: 0.4 (default)
+// hover center
+float servo_left_trim_hover = 0.5;
+float servo_right_trim_hover = 0.5;
 
 float ff_roll_yaw_mix_amount = 30; // in forward flight, a roll commands some yaw for coordinated turns
 float ff_pitch_trim = 5; // pitch trim angle in degrees to command in forward flight
@@ -361,13 +361,13 @@ void setup() {
   motor6_esc.attach(m6Pin, 1000, 2000); // Attach to motor 6 pin
 #endif
 
-  servo1.attach(servo1Pin, 900, 2100); //Pin, min PWM value, max PWM value
-  servo2.attach(servo2Pin, 900, 2100);
-  servo3.attach(servo3Pin, 900, 2100);
-  servo4.attach(servo4Pin, 900, 2100);
-  servo5.attach(servo5Pin, 900, 2100);
-  servo6.attach(servo6Pin, 900, 2100);
-  servo7.attach(servo7Pin, 900, 2100);
+  servo1.attach(servo1Pin, 1000, 2000); //Pin, min PWM value, max PWM value // default (900, 2100)
+  servo2.attach(servo2Pin, 1000, 2000);
+  servo3.attach(servo3Pin, 1000, 2000);
+  servo4.attach(servo4Pin, 1000, 2000);
+  servo5.attach(servo5Pin, 1000, 2000);
+  servo6.attach(servo6Pin, 1000, 2000);
+  servo7.attach(servo7Pin, 1000, 2000);
 
   //Set built in LED to turn on to signal startup
   digitalWrite(13, HIGH);
@@ -394,10 +394,10 @@ void setup() {
   // calculate_IMU_error(); //Calibration parameters printed to serial monitor. Paste these in the user specified variables section, then comment this out forever.
 
   //Arm servo channels
-  servo1.write(0); //Command servo angle from 0-180 degrees (1000 to 2000 PWM)
-  servo2.write(0); //Set these to 90 for servos if you do not want them to briefly max out on startup
+  servo1.write(90); //Command servo angle from 0-180 degrees (1000 to 2000 PWM)
+  servo2.write(90); //Set these to 90 for servos if you do not want them to briefly max out on startup
   servo3.write(0); //Keep these at 0 if you are using servo outputs for motors
-  servo4.write(0);
+  servo4.write(0); // default = 0
   servo5.write(0);
   servo6.write(0);
   servo7.write(0);
@@ -424,7 +424,7 @@ void setup() {
   motor4_esc.write(0);
   motor5_esc.write(0);
   motor6_esc.write(0);
-  delay(2000); // ESCs typically need ~2 seconds of minimum throttle to arm
+  delay(20); // ESCs typically need ~2 seconds of minimum throttle to arm (for safety reason), keep at 20ms for flight responsiveness
 #endif
   
   //Indicate entering main loop with 3 quick blinks
@@ -530,13 +530,13 @@ void loop() {
   motor6_esc.write(constrain((int)((m6_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
 #endif
 
-  servo1.write(s1_command_PWM); //Writes PWM value to servo object
-  servo2.write(s2_command_PWM);
-  servo3.write(s3_command_PWM);
-  servo4.write(s4_command_PWM);
-  servo5.write(s5_command_PWM);
-  servo6.write(s6_command_PWM);
-  servo7.write(s7_command_PWM);
+  servo1.write(map(s1_command_PWM, 1000, 2000, 0, 180)); //Writes PWM value to servo object
+  servo2.write(map(s2_command_PWM, 1000, 2000, 0, 180));
+  servo3.write(map(s3_command_PWM, 1000, 2000, 0, 180));
+  servo4.write(map(s4_command_PWM, 1000, 2000, 0, 180));
+  servo5.write(map(s5_command_PWM, 1000, 2000, 0, 180));
+  servo6.write(map(s6_command_PWM, 1000, 2000, 0, 180));
+  servo7.write(map(s7_command_PWM, 1000, 2000, 0, 180));
     
   //Get vehicle commands for next loop iteration
   getCommands(); //Pulls current available radio commands
@@ -572,9 +572,13 @@ void controlMixer() {
   m2_command_scaled = (1.0 - transition_fader)*(thro_des + yaw_PID) + (transition_fader)*(thro_des - roll_PID); // right
   m3_command_scaled = (1.0 - transition_fader)*(thro_des - yaw_PID) + (transition_fader)*(thro_des + roll_PID); // left
 
+  // servo mode specific mixing to each side, mode specific
+  float left_base  = (1.0f - transition_fader)*servo_left_trim_ff + transition_fader*servo_left_trim_hover; //left
+  float right_base = (1.0f - transition_fader)*servo_right_trim_ff + transition_fader*servo_right_trim_hover;  //right
+
   //0.5 is centered servo, 0.0 is zero throttle if connecting to ESC for conventional PWM, 1.0 is max throttle
-  s1_command_scaled = (1.0 - transition_fader)*(servo_left_trim + roll_PID + pitch_PID + kff_pitch_angle_ff*pitch_passthru) + (transition_fader)*(servo_left_trim + yaw_PID + pitch_PID); // left
-  s2_command_scaled = (1.0 - transition_fader)*(servo_right_trim + roll_PID - pitch_PID - kff_pitch_angle_ff*pitch_passthru) + (transition_fader)*(servo_right_trim + yaw_PID - pitch_PID); // right
+  s1_command_scaled = (1.0f - transition_fader)*(left_base  + roll_PID + pitch_PID + kff_pitch_angle_ff*pitch_passthru) + (transition_fader)*(left_base  + yaw_PID  + pitch_PID); // left
+  s2_command_scaled = (1.0f - transition_fader)*(right_base + roll_PID - pitch_PID - kff_pitch_angle_ff*pitch_passthru) +  (transition_fader)*(right_base + yaw_PID  - pitch_PID); // right
 
   /////////////////////////////////////
 
@@ -1063,7 +1067,7 @@ void getDesState() {
   yaw_passthru = constrain(yaw_passthru, -0.5, 0.5);
 
   yaw_des = (1.0 - transition_fader)*(yaw_des - ff_roll_yaw_mix_amount * roll_des/maxRoll) + (transition_fader)*(yaw_des); // ff + hover
-  pitch_des = (1.0 - transition_fader)*(pitch_des - ff_pitch_trim) + (transition_fader)*(pitch_des); // ff + hover
+  pitch_des = (1.0 - transition_fader)*(pitch_des - ff_pitch_trim) + (transition_fader)*(pitch_des + 90.0); // ff + hover // added + 90.0 to pitch for vertical offset correction
 
 }
 
@@ -1294,22 +1298,40 @@ void scaleCommands() {
   m6_command_PWM = constrain(m6_command_PWM, 1000, 2000);
 #endif
 
-  //Scaled to 0-180 for servo library
-  s1_command_PWM = s1_command_scaled*180;
-  s2_command_PWM = s2_command_scaled*180;
-  s3_command_PWM = s3_command_scaled*180;
-  s4_command_PWM = s4_command_scaled*180;
-  s5_command_PWM = s5_command_scaled*180;
-  s6_command_PWM = s6_command_scaled*180;
-  s7_command_PWM = s7_command_scaled*180;
-  //Constrain commands to servos within servo library bounds
-  s1_command_PWM = constrain(s1_command_PWM, 0, 180);
-  s2_command_PWM = constrain(s2_command_PWM, 0, 180);
-  s3_command_PWM = constrain(s3_command_PWM, 0, 180);
-  s4_command_PWM = constrain(s4_command_PWM, 0, 180);
-  s5_command_PWM = constrain(s5_command_PWM, 0, 180);
-  s6_command_PWM = constrain(s6_command_PWM, 0, 180);
-  s7_command_PWM = constrain(s7_command_PWM, 0, 180);
+// Servo actuation convention (us vs Angle)
+  // Scaled to 1000 - 2000us for WriteMicroseconds
+  s1_command_PWM = 1000 + (s1_command_scaled * 1000);
+  s2_command_PWM = 1000 + (s2_command_scaled * 1000);
+  s3_command_PWM = 1000 + (s3_command_scaled * 1000);
+  s4_command_PWM = 1000 + (s4_command_scaled * 1000);
+  s5_command_PWM = 1000 + (s5_command_scaled * 1000);
+  s6_command_PWM = 1000 + (s6_command_scaled * 1000);
+  s7_command_PWM = 1000 + (s7_command_scaled * 1000);
+  // constrain commands to servos within microsecond bounds
+  s1_command_PWM = constrain(s1_command_PWM, 1000, 2000);
+  s2_command_PWM = constrain(s2_command_PWM, 1000, 2000);
+  s3_command_PWM = constrain(s3_command_PWM, 1000, 2000);
+  s4_command_PWM = constrain(s4_command_PWM, 1000, 2000);
+  s5_command_PWM = constrain(s5_command_PWM, 1000, 2000);
+  s6_command_PWM = constrain(s6_command_PWM, 1000, 2000);
+  s7_command_PWM = constrain(s7_command_PWM, 1000, 2000);
+  
+  // // Scaled to 0-180 for servo library (angle based)
+  // s1_command_PWM = s1_command_scaled*180;
+  // s2_command_PWM = s2_command_scaled*180;
+  // s3_command_PWM = s3_command_scaled*180;
+  // s4_command_PWM = s4_command_scaled*180;
+  // s5_command_PWM = s5_command_scaled*180;
+  // s6_command_PWM = s6_command_scaled*180;
+  // s7_command_PWM = s7_command_scaled*180;
+  // // Constrain commands to servos within servo library bounds
+  // s1_command_PWM = constrain(s1_command_PWM, 0, 180);
+  // s2_command_PWM = constrain(s2_command_PWM, 0, 180);
+  // s3_command_PWM = constrain(s3_command_PWM, 0, 180);
+  // s4_command_PWM = constrain(s4_command_PWM, 0, 180);
+  // s5_command_PWM = constrain(s5_command_PWM, 0, 180);
+  // s6_command_PWM = constrain(s6_command_PWM, 0, 180);
+  // s7_command_PWM = constrain(s7_command_PWM, 0, 180);
 
 }
 
@@ -1439,7 +1461,6 @@ void failSafe() {
   }
 }
 
-
 //========================================================================================================================//
 //                         OneShot125 ESC Functions (Conditional Compilation)                                         //
 //========================================================================================================================//
@@ -1554,25 +1575,41 @@ void calibrateESCs() {
       s5_command_scaled = thro_des;
       s6_command_scaled = thro_des;
       s7_command_scaled = thro_des;
-      scaleCommands(); //Scales motor commands to 1000 to 2000 range (standard PWM protocol) and servo PWM commands to 0 to 180 (for servo library)
+      scaleCommands(); //Scales motor commands to 1000 to 2000 range (standard PWM protocol) and servo PWM commands to 0 to 180 (for servo library) or writeMicroseconds for 1000 - 2000
     
       //throttleCut(); //Directly sets motor commands to low based on state of ch5
       
-      servo1.write(s1_command_PWM); 
-      servo2.write(s2_command_PWM);
-      servo3.write(s3_command_PWM);
-      servo4.write(s4_command_PWM);
-      servo5.write(s5_command_PWM);
-      servo6.write(s6_command_PWM);
-      servo7.write(s7_command_PWM);
+      servo1.write(map(s1_command_PWM, 1000, 2000, 0, 180));
+      servo2.write(map(s2_command_PWM, 1000, 2000, 0, 180));
+      servo3.write(map(s3_command_PWM, 1000, 2000, 0, 180));
+      servo4.write(map(s4_command_PWM, 1000, 2000, 0, 180));
+      servo5.write(map(s5_command_PWM, 1000, 2000, 0, 180));
+      servo6.write(map(s6_command_PWM, 1000, 2000, 0, 180));
+      servo7.write(map(s7_command_PWM, 1000, 2000, 0, 180));
+
+      // servo1.write(s1_command_PWM);
+      // servo2.write(s2_command_PWM);
+      // servo3.write(s3_command_PWM);
+      // servo4.write(s4_command_PWM);
+      // servo5.write(s5_command_PWM);
+      // servo6.write(s6_command_PWM);
+      // servo7.write(s7_command_PWM);
+
       
-      // Command motors with standard PWM (map 1000-2000us -> 0-180)
-      motor1_esc.write(constrain((int)((m1_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
-      motor2_esc.write(constrain((int)((m2_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
-      motor3_esc.write(constrain((int)((m3_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
-      motor4_esc.write(constrain((int)((m4_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
-      motor5_esc.write(constrain((int)((m5_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
-      motor6_esc.write(constrain((int)((m6_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
+      // Command motors with standard PWM (map 1000-2000us -> 0-180) (or Microseconds everything)
+      motor1_esc.write(map(m1_command_PWM, 1000, 2000, 0, 180));
+      motor2_esc.write(map(m2_command_PWM, 1000, 2000, 0, 180));
+      motor3_esc.write(map(m3_command_PWM, 1000, 2000, 0, 180));
+      motor4_esc.write(map(m4_command_PWM, 1000, 2000, 0, 180));
+      motor5_esc.write(map(m5_command_PWM, 1000, 2000, 0, 180));
+      motor6_esc.write(map(m6_command_PWM, 1000, 2000, 0, 180));
+
+      // motor1_esc.write(constrain((int)((m1_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
+      // motor2_esc.write(constrain((int)((m2_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
+      // motor3_esc.write(constrain((int)((m3_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
+      // motor4_esc.write(constrain((int)((m4_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
+      // motor5_esc.write(constrain((int)((m5_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
+      // motor6_esc.write(constrain((int)((m6_command_PWM - 1000) * 180.0f / 1000.0f), 0, 180));
 
       printRadioData(); //Radio pwm values (expected: 1000 to 2000)
       
