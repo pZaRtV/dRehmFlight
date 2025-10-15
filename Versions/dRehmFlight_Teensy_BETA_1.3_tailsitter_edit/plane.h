@@ -1,5 +1,8 @@
 // DRehmFlight Teensy Flight Controller Tailsitter Specific Config
-// Author  : Pat
+// Author         : Patrick Andrasena T.
+// Project Start  : 8/21/2025
+// Last Updated   : 10/15/2025
+// Version        : Beta 1.1 
 
 #ifndef TAILSHIT_XIANYING_H
 #define TAILSHIT_XIANYING_H
@@ -13,7 +16,7 @@
 // #define USE_IBUS_RX
 
 // If using DSM RX, set the number of channels:
-#define NUM_DSM_CHANNELS 6
+// #define NUM_DSM_CHANNELS 6
 
 // Select ONE IMU:
 #define USE_MPU6050_I2C // Default
