@@ -1,3 +1,11 @@
+// Teensy Tailsitter FCU
+// Author         : Patrick Andrasena T.
+// Project Start  : 8/21/2025
+// Last Updated   : 10/15/2025
+// Version        : Beta 1.3b 
+
+// Thanks to & Credits:
+// Baseline
 //Arduino/Teensy Flight Controller - dRehmFlight
 //Author: Nicholas Rehm
 //Project Start: 1/6/2020
