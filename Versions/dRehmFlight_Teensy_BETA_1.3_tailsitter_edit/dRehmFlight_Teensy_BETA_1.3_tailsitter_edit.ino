@@ -1,13 +1,21 @@
-//Arduino/Teensy Flight Controller - dRehmFlight
-//Author: Nicholas Rehm
-//Project Start: 1/6/2020
-//Last Updated: 7/29/2022
-//Version: Beta 1.3
+// Teensy Tailsitter FCU
+// Author         : Patrick Andrasena T.
+// Project Start  : 8/21/2025
+// Last Updated   : 10/15/2025
+// Version        : Beta 1.3b 
  
 //========================================================================================================================//
 
 //CREDITS + SPECIAL THANKS
 /*
+This project's baseline:
+https://www.rcgroups.com/forums/showpost.php?p=51594219 
+// Arduino/Teensy Flight Controller - dRehmFlight
+// Author: Nicholas Rehm
+// Project Start: 1/6/2020
+// Last Updated: 7/29/2022
+// Version: Beta 1.3
+
 Some elements inspired by:
 http://www.brokking.net/ymfc-32_main.html
 
